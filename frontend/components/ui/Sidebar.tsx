@@ -1,103 +1,165 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../auth/auth-context';
 import { useSidebar } from './SidebarContext';
 
-const navItems: Record<string, { href: string; label: string }[]> = {
+type NavItem = { href: string; label: string; icon: string };
+
+const navItems: Record<string, NavItem[]> = {
   ADMIN: [
-    { href: '/admin', label: 'Dashboard' },
-    { href: '/admin/users', label: 'Users' },
-    { href: '/admin/projects', label: 'Projects' },
-    { href: '/admin/reports', label: 'Reports' },
-    { href: '/admin/settings', label: 'Settings' },
+    { href: '/admin',             label: 'Dashboard',       icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+    { href: '/admin/students',    label: 'Students',        icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+    { href: '/admin/supervisors', label: 'Supervisors',     icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+    { href: '/admin/assignments', label: 'Assignments',     icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
+    { href: '/admin/bulk-upload', label: 'Bulk Upload',     icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12' },
+    { href: '/admin/approvals',   label: 'Approvals',       icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+    { href: '/admin/audit',       label: 'Activity Log',    icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+    { href: '/admin/settings',    label: 'Settings',        icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
   ],
   SUPERVISOR: [
-    { href: '/supervisor', label: 'Dashboard' },
-    { href: '/supervisor/projects', label: 'Projects' },
-    { href: '/supervisor/reviews', label: 'Reviews' },
-    { href: '/supervisor/discussions', label: 'Discussions' },
-    { href: '/supervisor/settings', label: 'Settings' },
+    { href: '/supervisor',          label: 'Dashboard',  icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+    { href: '/supervisor/students', label: 'My Students', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+    { href: '/supervisor/messages', label: 'Messages',   icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+    { href: '/supervisor/settings', label: 'Settings',   icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
   ],
   STUDENT: [
-    { href: '/student', label: 'Dashboard' },
-    { href: '/student/projects', label: 'Projects' },
-    { href: '/student/submissions', label: 'Submissions' },
-    { href: '/student/discussions', label: 'Discussions' },
-    { href: '/student/settings', label: 'Settings' },
+    { href: '/student',             label: 'Dashboard',   icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+    { href: '/student/projects',    label: 'Projects',    icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z' },
+    { href: '/student/submissions', label: 'Submissions', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+    { href: '/student/messages',    label: 'Messages',    icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+    { href: '/student/settings',    label: 'Settings',    icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
   ],
 };
+
+function getPendingAdminCount(): number {
+  if (typeof window === 'undefined') return 0;
+  try {
+    const users = JSON.parse(localStorage.getItem('ipms_users_registered') || '[]');
+    return users.filter((u: any) => u.role === 'ADMIN' && !u.verified).length;
+  } catch { return 0; }
+}
+
+function NavIcon({ d }: { d: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-[18px] h-[18px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      {d.split(' M').map((seg, i) => (
+        <path key={i} strokeLinecap="round" strokeLinejoin="round" d={i === 0 ? seg : 'M' + seg} />
+      ))}
+    </svg>
+  );
+}
 
 export default function Sidebar() {
   const { user } = useAuth();
   const { open, close } = useSidebar();
   const pathname = usePathname();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.role !== 'ADMIN') return;
+    setPendingCount(getPendingAdminCount());
+    const refresh = () => setPendingCount(getPendingAdminCount());
+    window.addEventListener('storage', refresh);
+    window.addEventListener('ipms_data', refresh);
+    const t = setInterval(refresh, 10000);
+    return () => { window.removeEventListener('storage', refresh); window.removeEventListener('ipms_data', refresh); clearInterval(t); };
+  }, [user?.role]);
 
   if (!user) return null;
-
-  const role = user.role as keyof typeof navItems;
+  const role  = user.role as keyof typeof navItems;
   const items = navItems[role] ?? navItems.STUDENT;
+
+  const isActive = (href: string) =>
+    href === '/admin' || href === '/student' || href === '/supervisor'
+      ? pathname === href
+      : pathname === href || pathname.startsWith(href + '/');
+
+  const roleLabel: Record<string, string> = { ADMIN: 'Administrator', SUPERVISOR: 'Supervisor', STUDENT: 'Student' };
 
   return (
     <>
-      {/* Overlay */}
       {open && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity"
-          onClick={close}
-        />
+        <div className="fixed inset-0 z-40" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} onClick={close} />
       )}
 
-      {/* Drawer */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 shrink-0 flex-col gap-6 border-r border-slate-200/80 bg-white px-5 py-6 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-          open ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed top-0 left-0 z-50 h-full w-64 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ background: 'var(--sidebar-bg)', borderRight: '1px solid var(--sidebar-border)' }}
       >
-        {/* Close button */}
-        <button
-          onClick={close}
-          className="absolute top-5 right-4 flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path
-              fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-
-        <div className="space-y-4">
-          <div className="rounded-3xl bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-900 ring-1 ring-sky-100">
-            Welcome back,
-            <div className="mt-1 text-xs font-medium text-slate-500 uppercase tracking-[0.18em]">{role ?? 'guest'}</div>
+        {/* Header */}
+        <div className="px-5 py-5" style={{ borderBottom: '1px solid var(--sidebar-section-sep)' }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-base shrink-0" style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5)' }}>🎓</div>
+              <div>
+                <div className="text-sm font-bold leading-none" style={{ color: 'var(--text-1)' }}>IPMS</div>
+                <div className="text-[10px] mt-0.5 leading-none" style={{ color: 'var(--text-3)' }}>Monitoring System</div>
+              </div>
+            </div>
+            <button onClick={close} className="flex h-7 w-7 items-center justify-center rounded-lg transition"
+              style={{ color: 'var(--sidebar-text)' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
           </div>
-
-          <nav className="space-y-2">
-            {items.map((it) => {
-              const active = pathname === it.href || (it.href !== '/' && pathname.startsWith(it.href));
-              return (
-                <Link
-                  key={it.href}
-                  href={it.href}
-                  onClick={close}
-                  className={`block rounded-2xl px-4 py-3 text-sm font-medium transition ${
-                    active
-                      ? 'bg-sky-100 text-sky-800'
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  {it.label}
-                </Link>
-              );
-            })}
-          </nav>
         </div>
 
-        <div className="mt-auto rounded-3xl bg-slate-50 p-4 text-sm leading-6 text-slate-600 shadow-sm">
-          Quick tip: use your dashboard cards to track progress, not paperwork.
+        {/* User card */}
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--sidebar-section-sep)' }}>
+          <div className="flex items-center gap-3 rounded-xl px-3 py-2.5" style={{ background: 'var(--sidebar-user-bg)' }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-white shrink-0" style={{ background: 'linear-gradient(135deg,#2563eb,#7c3aed)' }}>
+              {user.name[0].toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-semibold truncate leading-tight" style={{ color: 'var(--text-1)' }}>{user.name}</div>
+              <div className="text-[10px] leading-tight mt-0.5" style={{ color: 'var(--info-text)' }}>{roleLabel[role] ?? role}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+          {items.map(item => {
+            const active = isActive(item.href);
+            const badge  = item.href === '/admin/approvals' ? pendingCount : 0;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={close}
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150"
+                style={active ? {
+                  background: 'var(--sidebar-active-bg)',
+                  color: 'var(--sidebar-text-active)',
+                  borderLeft: '2px solid var(--sidebar-active-border)',
+                  paddingLeft: '10px',
+                } : {
+                  color: 'var(--sidebar-text)',
+                  borderLeft: '2px solid transparent',
+                }}
+              >
+                <span style={{ color: active ? 'var(--sidebar-icon-active)' : 'var(--sidebar-icon)' }}>
+                  <NavIcon d={item.icon} />
+                </span>
+                <span className="flex-1 font-medium text-[13px]">{item.label}</span>
+                {badge > 0 && (
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white" style={{ background: '#2563eb' }}>
+                    {badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="px-4 pb-5">
+          <div className="rounded-xl px-3 py-2.5" style={{ background: 'var(--sidebar-user-bg)', border: '1px solid var(--sidebar-section-sep)' }}>
+            <p className="text-[10px] leading-relaxed" style={{ color: 'var(--text-3)' }}>Intelligent Project<br />Monitoring System <span style={{ color: 'var(--text-3)' }}>v1.0</span></p>
+          </div>
         </div>
       </aside>
     </>

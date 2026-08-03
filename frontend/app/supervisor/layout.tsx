@@ -7,9 +7,9 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 export default function SupervisorLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute roles={["SUPERVISOR"]}>
-      <div className="min-h-screen flex">
+      <div className="min-h-screen flex" style={{ background: 'var(--bg-base)' }}>
         <Sidebar />
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <Navbar />
           <main className="p-6">{children}</main>
         </div>

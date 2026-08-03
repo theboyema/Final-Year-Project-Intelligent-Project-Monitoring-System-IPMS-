@@ -1,0 +1,113 @@
+export const DEPARTMENTS = [
+  'Biochemistry and Biotechnology',
+  'Chemistry',
+  'Computer Science',
+  'Earth Science',
+  'Mathematics',
+  'Meteorology and Climate Science',
+  'Optometry and Visual Science',
+  'Physics',
+  'Statistics and Actuarial Science',
+  'Theoretical and Applied Biology',
+] as const;
+
+export const COURSES_BY_DEPT: Record<string, string[]> = {
+  'Biochemistry and Biotechnology': [
+    'BSc Biochemistry',
+    'BSc Biotechnology',
+    'BSc Biomedical Science',
+    'BSc Molecular Biology and Forensic Science',
+    'BSc Molecular Medicine',
+    'BSc Microbiology',
+  ],
+  'Chemistry': [
+    'BSc Chemistry',
+    'BSc Industrial Chemistry',
+    'BSc Chemical Sciences',
+    'BSc Medicinal Chemistry',
+    'BSc Applied Chemistry',
+    'BSc Polymer Science',
+  ],
+  'Computer Science': [
+    'BSc Computer Science',
+    'BSc Information Technology',
+    'BSc Software Engineering',
+    'BSc Cybersecurity and Digital Forensics',
+    'BSc Data Science and Analytics',
+    'BSc Artificial Intelligence',
+    'BSc Computer Engineering',
+    'BSc Network Engineering',
+    'BSc Information Systems',
+  ],
+  'Earth Science': [
+    'BSc Geological Sciences',
+    'BSc Petroleum Geoscience and Production',
+    'BSc Environmental Science',
+    'BSc Geophysics',
+    'BSc Mining Geology',
+    'BSc Engineering Geology',
+    'BSc Hydrogeology',
+  ],
+  'Mathematics': [
+    'BSc Mathematics',
+    'BSc Mathematics with Statistics',
+    'BSc Mathematics (Actuarial Track)',
+    'BSc Applied Mathematics',
+    'BSc Financial Mathematics',
+    'BSc Mathematical Sciences',
+    'BSc Pure Mathematics',
+    'BSc Computational Mathematics',
+  ],
+  'Meteorology and Climate Science': [
+    'BSc Meteorology and Climate Science',
+    'BSc Environmental Science',
+    'BSc Climate Change and Environmental Management',
+    'BSc Atmospheric Physics',
+    'BSc Hydrology and Water Resources',
+  ],
+  'Optometry and Visual Science': [
+    'BSc Optometry',
+    'Doctor of Optometry (OD)',
+    'BSc Vision Science',
+    'BSc Ophthalmic Technology',
+    'BSc Low Vision Rehabilitation',
+  ],
+  'Physics': [
+    'BSc Physics',
+    'BSc Materials Science',
+    'BSc Applied Physics',
+    'BSc Nuclear Physics',
+    'BSc Medical Physics',
+    'BSc Laser Physics and Photonics',
+    'BSc Solid State Physics',
+    'BSc Biophysics',
+  ],
+  'Statistics and Actuarial Science': [
+    'BSc Statistics',
+    'BSc Actuarial Science',
+    'BSc Data Science',
+    'BSc Financial Statistics',
+    'BSc Applied Statistics',
+    'BSc Biostatistics',
+    'BSc Statistical Computing',
+    'BSc Operations Research',
+  ],
+  'Theoretical and Applied Biology': [
+    'BSc Biology',
+    'BSc Zoology',
+    'BSc Botany',
+    'BSc Environmental Biology',
+    'BSc Ecology and Wildlife Management',
+    'BSc Microbiology',
+    'BSc Plant Biology',
+    'BSc Animal Biology',
+    'BSc Conservation Biology',
+    'BSc Marine Biology',
+  ],
+};
+
+/** Flat sorted list of every programme across all departments */
+export const ALL_COURSES: string[] = Object.values(COURSES_BY_DEPT)
+  .flat()
+  .filter((v, i, a) => a.indexOf(v) === i)   // deduplicate
+  .sort((a, b) => a.localeCompare(b));

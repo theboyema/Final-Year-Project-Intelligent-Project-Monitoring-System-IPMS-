@@ -1,265 +1,167 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../../components/auth/auth-context';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '../../../components/auth/auth-context';
 
-type Role = 'STUDENT' | 'SUPERVISOR' | 'ADMIN' | null;
+type FormState = 'idle' | 'submitting' | 'approved' | 'pending';
 
 export default function RegisterPage() {
-  const { register, verifyAccount, user, hydrated } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [role, setRole] = useState<Role>('STUDENT');
-  const [course, setCourse] = useState('');
-  const [level, setLevel] = useState('');
-  const [studentId, setStudentId] = useState('');
-  const [indexNumber, setIndexNumber] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [verifying, setVerifying] = useState(false);
+  const { registerAdmin, user, hydrated } = useAuth();
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
+  const [state, setState] = useState<FormState>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [needsVerification, setNeedsVerification] = useState<string | null>(null);
+  const [showPw, setShowPw] = useState(false);
+  const [resultEmail, setResultEmail] = useState('');
 
-  // Once hydrated, redirect if already logged in
   useEffect(() => {
-    if (!hydrated) return;
-    if (user) {
-      const path = user.role === 'ADMIN' ? '/admin' : user.role === 'SUPERVISOR' ? '/supervisor' : '/student';
-      window.location.href = path;
-    }
+    if (!hydrated || !user) return;
+    const dest = user.role === 'ADMIN' ? '/admin' : user.role === 'SUPERVISOR' ? '/supervisor' : '/student';
+    window.location.href = dest;
   }, [user, hydrated]);
 
-  // After verifyAccount sets the user, the useEffect above handles redirect
-  useEffect(() => {
-    if (verifying && user && needsVerification) {
-      // Redirect will happen via the user effect above
-    }
-  }, [user, verifying, needsVerification]);
+  const pwStrength = (pw: string) => {
+    if (!pw) return 0;
+    if (pw.length >= 12 && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw)) return 4;
+    if (pw.length >= 10 && /[A-Z]/.test(pw)) return 3;
+    if (pw.length >= 8) return 2;
+    return 1;
+  };
+  const strength = pwStrength(form.password);
+  const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong'][strength];
+  const strengthColor = ['', '#ef4444', '#f59e0b', '#3b82f6', '#10b981'][strength];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-
-    if (!email || !password || !name || !confirmPassword) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (role === 'STUDENT') {
-      if (!course || !level || !studentId || !indexNumber) {
-        setError('Please fill in all student fields');
-        return;
-      }
-    }
-
-    setLoading(true);
+    if (!form.name.trim())        return setError('Full name is required.');
+    if (!form.email.trim())       return setError('Email address is required.');
+    if (form.password.length < 8) return setError('Password must be at least 8 characters.');
+    if (form.password !== form.confirm) return setError('Passwords do not match.');
+    setState('submitting');
     try {
-      if (role === 'STUDENT') {
-        await register(email, password, name, role, course, level, studentId, indexNumber);
-      } else {
-        await register(email, password, name, role);
-      }
+      const result = await registerAdmin(form.name.trim(), form.email.trim(), form.password);
+      setResultEmail(form.email.trim());
+      setState(result === 'approved' ? 'approved' : 'pending');
     } catch (err: any) {
-      if (err?.message === 'VERIFICATION_REQUIRED') {
-        setNeedsVerification(email.trim().toLowerCase());
-      } else {
-        setError(err?.message || 'Unable to create account');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerify = () => {
-    if (!needsVerification) return;
-    setVerifying(true);
-    try {
-      verifyAccount(needsVerification);
-    } catch {
-      setError('Verification failed. Please try again.');
-      setVerifying(false);
+      setError(err?.message || 'Registration failed. Please try again.');
+      setState('idle');
     }
   };
 
   if (!hydrated) return null;
 
-  // Verification screen
-  if (needsVerification) {
+  if (state === 'approved') {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="card p-8 w-full max-w-md text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sky-100">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-sky-600" viewBox="0 0 20 20" fill="currentColor">
-              <path
-                fillRule="evenodd"
-                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                clipRule="evenodd"
-              />
-            </svg>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg-base)' }}>
+        <div className="w-full max-w-md card p-8 text-center space-y-5">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto" style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)' }}>✓</div>
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-1)' }}>Account Created!</h1>
+            <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>You are the first administrator. Your account has been automatically activated.</p>
           </div>
-          <h2 className="text-2xl font-semibold text-slate-900">Verify your account</h2>
-          <p className="mt-3 text-slate-600">
-            Your account has been created for <strong>{needsVerification}</strong>. Click the button below to verify and activate your account.
-          </p>
-          <button
-            onClick={handleVerify}
-            disabled={verifying}
-            className="inline-flex items-center justify-center rounded-full bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/10 transition hover:bg-sky-700 mt-6 w-full sm:w-auto"
-          >
-            {verifying ? 'Verifying...' : 'Verify Account & Sign In'}
-          </button>
+          <div className="rounded-xl px-4 py-3 text-left" style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)' }}>
+            <p className="text-xs font-semibold" style={{ color: 'var(--success-text)' }}>Account</p>
+            <p className="mt-1 text-xs font-mono" style={{ color: 'var(--text-1)' }}>{resultEmail}</p>
+          </div>
+          <Link href="/login" className="btn-primary w-full py-3 block text-center">Sign In Now →</Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === 'pending') {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg-base)' }}>
+        <div className="w-full max-w-md card p-8 text-center space-y-5">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto" style={{ background: 'var(--warning-bg)', border: '1px solid var(--warning-border)' }}>⏳</div>
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-1)' }}>Application Submitted</h1>
+            <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>Your admin account request is awaiting approval from an existing administrator.</p>
+          </div>
+          <div className="rounded-xl px-4 py-3 text-sm text-left space-y-2" style={{ background: 'var(--warning-bg)', border: '1px solid var(--warning-border)' }}>
+            <p className="text-xs" style={{ color: 'var(--warning-text)' }}><span className="font-semibold">Email:</span> {resultEmail}</p>
+            <p className="text-xs" style={{ color: 'var(--text-2)' }}>An existing administrator must approve your request before you can sign in.</p>
+          </div>
+          <Link href="/login" className="btn-secondary w-full py-3 block text-center">← Back to Sign In</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
-      <div className="card p-8 w-full max-w-lg">
-        <div className="mb-6 space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full bg-sky-100 px-4 py-2 text-sm font-semibold text-sky-800">
-            New account
+    <div className="min-h-screen flex items-center justify-center px-4 py-10" style={{ background: 'var(--bg-base)' }}>
+      <div className="w-full max-w-md space-y-6">
+
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-1" style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5)' }}>
+            <span className="text-2xl">🎓</span>
           </div>
           <div>
-            <h1 className="text-3xl font-semibold text-slate-900">Create your IPMS account</h1>
-            <p className="mt-2 text-slate-600">Register as a student, lecturer, or admin.</p>
+            <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-1)' }}>IPMS</h1>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>Administrator Registration</p>
           </div>
         </div>
 
-        {error && (
-          <div className="mb-4 rounded-3xl bg-red-50 p-4 text-sm text-red-700">{error}</div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-700">Full Name</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 focus:border-sky-400"
-              placeholder="John Doe"
-            />
+        <div className="card p-8 space-y-6">
+          <div>
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--text-1)' }}>Create an admin account</h2>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Your application will be reviewed before access is granted.</p>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-700">Role</label>
-            <select
-              value={role || 'STUDENT'}
-              onChange={(e) => setRole(e.target.value as Role)}
-              className="mt-1 block w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 focus:border-sky-400"
-            >
-              <option value="STUDENT">Student</option>
-              <option value="SUPERVISOR">Lecturer / Supervisor</option>
-              <option value="ADMIN">Administrator</option>
-            </select>
+          <div className="rounded-xl px-4 py-3 text-xs space-y-1" style={{ background: 'var(--info-bg)', border: '1px solid var(--info-border)' }}>
+            <p className="font-semibold" style={{ color: 'var(--info-text)' }}>Administrators only</p>
+            <p style={{ color: 'var(--text-2)' }}>Students and supervisors are added directly by an admin — they do not register here.</p>
           </div>
 
-          {role === 'STUDENT' && (
-            <fieldset className="space-y-4 rounded-[28px] border border-slate-200 bg-slate-50 p-5">
-              <legend className="text-sm font-semibold text-slate-700">Student details</legend>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700">Course</label>
-                  <input
-                    value={course}
-                    onChange={(e) => setCourse(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 focus:border-sky-400"
-                    placeholder="e.g., BSc Computer Science"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700">Level</label>
-                  <input
-                    value={level}
-                    onChange={(e) => setLevel(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 focus:border-sky-400"
-                    placeholder="e.g., 400"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700">Student ID</label>
-                  <input
-                    value={studentId}
-                    onChange={(e) => setStudentId(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 focus:border-sky-400"
-                    placeholder="e.g., STU123456"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700">Index Number</label>
-                  <input
-                    value={indexNumber}
-                    onChange={(e) => setIndexNumber(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 focus:border-sky-400"
-                    placeholder="e.g., 00123456"
-                  />
-                </div>
-              </div>
-            </fieldset>
+          {error && (
+            <div className="flex items-start gap-3 rounded-xl px-4 py-3" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }}>
+              <span style={{ color: 'var(--danger-text)' }} className="shrink-0 mt-0.5">✕</span>
+              <p className="text-sm" style={{ color: 'var(--danger-text)' }}>{error}</p>
+            </div>
           )}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Email</label>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 focus:border-sky-400"
-                placeholder="you@example.com"
-                type="email"
-              />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="label">Full Name</label>
+              <input className="input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Your full name" autoComplete="name" />
             </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 focus:border-sky-400"
-                placeholder="At least 6 characters"
-              />
+            <div>
+              <label className="label">Email Address</label>
+              <input type="email" className="input" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="you@university.edu" autoComplete="email" />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-700">Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 block w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 focus:border-sky-400"
-              placeholder="Repeat your password"
-            />
-          </div>
-
-          <div>
-            <button disabled={loading} className="inline-flex items-center justify-center rounded-full bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/10 transition hover:bg-sky-700 w-full">
-              {loading ? 'Creating account...' : 'Create Account'}
+            <div>
+              <label className="label">Password</label>
+              <div className="relative">
+                <input type={showPw ? 'text' : 'password'} className="input pr-14" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="At least 8 characters" autoComplete="new-password" />
+                <button type="button" onClick={() => setShowPw(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-500 hover:text-blue-500 transition" tabIndex={-1}>
+                  {showPw ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              {form.password && (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex gap-1 flex-1">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="h-1 flex-1 rounded-full transition-all duration-300" style={{ background: i <= strength ? strengthColor : 'var(--border)' }} />
+                    ))}
+                  </div>
+                  <span className="text-xs font-semibold" style={{ color: strengthColor }}>{strengthLabel}</span>
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="label">Confirm Password</label>
+              <input type={showPw ? 'text' : 'password'} className="input" value={form.confirm} onChange={e => setForm({ ...form, confirm: e.target.value })} placeholder="Repeat your password" autoComplete="new-password" />
+            </div>
+            <button type="submit" disabled={state === 'submitting'} className="btn-primary w-full py-3">
+              {state === 'submitting' ? 'Submitting…' : 'Submit Application'}
             </button>
-            <p className="mt-3 text-sm text-slate-500 text-center">
-              By creating an account, you agree to our{' '}
-              <a href="#" className="underline">terms of use</a> and{' '}
-              <a href="#" className="underline">privacy policy</a>.
-            </p>
-          </div>
-          <div className="text-center text-sm text-slate-600">
+          </form>
+
+          <p className="text-center text-sm pt-4" style={{ borderTop: '1px solid var(--border)', color: 'var(--text-3)' }}>
             Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-sky-700 hover:text-sky-800">
-              Sign in
-            </Link>
-          </div>
-        </form>
+            <Link href="/login" className="font-semibold text-blue-500 hover:text-blue-400 transition">Sign in →</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

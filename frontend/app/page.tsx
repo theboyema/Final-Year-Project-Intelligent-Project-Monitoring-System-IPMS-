@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 
-export default function Home() {
-  // Redirect root to the login page so authentication is the first screen
+export default function RootPage() {
   redirect('/login');
 }
+
