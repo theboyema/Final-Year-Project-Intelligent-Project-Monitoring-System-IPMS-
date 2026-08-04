@@ -16,14 +16,14 @@ function LoginBg({ children }: { children: React.ReactNode }) {
 
       {/* Logo watermark — large brand icon rising from the bottom */}
       <div aria-hidden className="absolute pointer-events-none select-none" style={{
-        bottom: 'clamp(-140px, -18vw, -80px)',
+        bottom: '36px',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: 'clamp(280px, 58vw, 480px)',
-        height: 'clamp(280px, 58vw, 480px)',
+        width: 'clamp(200px, 44vw, 340px)',
+        height: 'clamp(200px, 44vw, 340px)',
         borderRadius: '28%',
         background: 'linear-gradient(145deg, #1e40af 0%, #2563eb 50%, #4f46e5 100%)',
-        opacity: 0.08,
+        opacity: 0.07,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
