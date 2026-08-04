@@ -44,7 +44,7 @@ export default function StudentDashboard() {
 
   const approvedCount = STAGES.filter(s => latestForStage(s)?.status === 'APPROVED').length;
   const pendingCount  = subs.filter(s => s.status === 'PENDING').length;
-  const revisionCount = subs.filter(s => s.status === 'REVISION_REQUIRED').length;
+  const revisionCount = STAGES.filter(s => latestForStage(s)?.status === 'REVISION_REQUIRED').length;
   const recent        = [...subs].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
 
   return (
