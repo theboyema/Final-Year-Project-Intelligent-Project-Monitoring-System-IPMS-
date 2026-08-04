@@ -57,45 +57,68 @@ export default function LoginPage() {
 
   if (!hydrated) return null;
 
+  /* ── Shared background wrapper ───────────────────────────────────────────── */
+  const Bg = ({ children }: { children: React.ReactNode }) => (
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Ambient glows */}
+      <div aria-hidden style={{ position: 'absolute', top: '-15%', left: '-10%', width: '55%', height: '55%', background: 'radial-gradient(circle, rgba(37,99,235,0.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div aria-hidden style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      {/* Graduation cap watermark */}
+      <div aria-hidden className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+        <svg viewBox="0 0 300 260" fill="currentColor" style={{ width: 'min(75vw, 520px)', opacity: 0.032, color: 'var(--text-1)', filter: 'blur(1px)' }}>
+          <polygon points="150,24 284,88 150,152 16,88" />
+          <path d="M68 106 Q68 158 150 168 Q232 158 232 106" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round"/>
+          <ellipse cx="150" cy="168" rx="82" ry="17" />
+          <line x1="284" y1="88" x2="284" y2="158" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
+          <rect x="270" y="155" width="28" height="10" rx="5" />
+          <line x1="274" y1="165" x2="268" y2="210" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
+          <line x1="280" y1="165" x2="278" y2="214" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
+          <line x1="286" y1="165" x2="288" y2="210" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
+          <line x1="292" y1="165" x2="298" y2="206" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
+          <ellipse cx="267" cy="213" rx="5" ry="7" />
+          <ellipse cx="278" cy="217" rx="5" ry="7" />
+          <ellipse cx="289" cy="213" rx="5" ry="7" />
+          <ellipse cx="299" cy="209" rx="5" ry="7" />
+        </svg>
+      </div>
+
+      <div className="w-full relative z-10" style={{ maxWidth: 420 }}>
+        {children}
+      </div>
+    </div>
+  );
+
   /* ── Pending approval ─────────────────────────────────────────────────── */
   if (state === 'pending_approval') {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <div className="card p-8 text-center space-y-5" style={{ border: '1px solid rgba(245,158,11,0.2)', boxShadow: '0 0 40px rgba(245,158,11,0.05), 0 4px 32px rgba(0,0,0,0.4)' }}>
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.2)' }}>⏳</div>
-            <div>
-              <h1 className="text-xl font-bold" style={{ color: 'var(--text-1)' }}>Approval Pending</h1>
-              <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>
-                Your admin account for <span className="font-medium" style={{ color: 'var(--text-1)' }}>{pendingEmail}</span> is awaiting approval from an existing administrator.
-              </p>
-            </div>
-            <div className="rounded-xl px-4 py-3 text-sm text-left space-y-1" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' }}>
-              <p className="font-semibold text-amber-300">What happens next?</p>
-              <p className="text-slate-400 text-xs">An existing admin will review your request. Once approved you can sign in normally.</p>
-            </div>
-            <button onClick={() => { setState('idle'); setError(null); setPassword(''); }} className="btn-secondary w-full">
-              ← Back to Sign In
-            </button>
+      <Bg>
+        <div className="card p-8 text-center space-y-5" style={{ border: '1px solid rgba(245,158,11,0.2)', boxShadow: '0 0 40px rgba(245,158,11,0.05), 0 4px 32px rgba(0,0,0,0.4)' }}>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.2)' }}>⏳</div>
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-1)' }}>Approval Pending</h1>
+            <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>
+              Your admin account for <span className="font-medium" style={{ color: 'var(--text-1)' }}>{pendingEmail}</span> is awaiting approval from an existing administrator.
+            </p>
           </div>
+          <div className="rounded-xl px-4 py-3 text-sm text-left space-y-1" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' }}>
+            <p className="font-semibold text-amber-300">What happens next?</p>
+            <p className="text-slate-400 text-xs">An existing admin will review your request. Once approved you can sign in normally.</p>
+          </div>
+          <button onClick={() => { setState('idle'); setError(null); setPassword(''); }} className="btn-secondary w-full">
+            ← Back to Sign In
+          </button>
         </div>
-      </div>
+      </Bg>
     );
   }
 
   /* ── Forgot password ──────────────────────────────────────────────────── */
   if (state === 'forgot_pw') {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center space-y-3">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-1" style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5)', boxShadow: '0 0 30px rgba(37,99,235,0.4)' }}>
-              <span className="text-2xl">🎓</span>
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-1)' }}>IPMS</h1>
-            </div>
-          </div>
+      <Bg>
+        <div className="space-y-6">
+          <LogoBrand />
           <div className="card p-8 space-y-5">
             <div>
               <h2 className="text-lg font-semibold" style={{ color: 'var(--text-1)' }}>Reset your password</h2>
@@ -118,49 +141,36 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
-      </div>
+      </Bg>
     );
   }
 
   /* ── Reset link sent ──────────────────────────────────────────────────── */
   if (state === 'reset_sent') {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <div className="card p-8 text-center space-y-5">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}>✉</div>
-            <div>
-              <h1 className="text-xl font-bold" style={{ color: 'var(--text-1)' }}>Check your email</h1>
-              <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>
-                If <span className="font-medium" style={{ color: 'var(--text-1)' }}>{resetEmail}</span> is registered, a password reset link has been sent. Check your spam folder if you don't see it.
-              </p>
-            </div>
-            <button onClick={() => { setState('idle'); setResetEmail(''); setError(null); }} className="btn-secondary w-full">
-              ← Back to Sign In
-            </button>
+      <Bg>
+        <div className="card p-8 text-center space-y-5">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}>✉</div>
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-1)' }}>Check your email</h1>
+            <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>
+              If <span className="font-medium" style={{ color: 'var(--text-1)' }}>{resetEmail}</span> is registered, a password reset link has been sent. Check your spam folder if you don't see it.
+            </p>
           </div>
+          <button onClick={() => { setState('idle'); setResetEmail(''); setError(null); }} className="btn-secondary w-full">
+            ← Back to Sign In
+          </button>
         </div>
-      </div>
+      </Bg>
     );
   }
 
   /* ── Login form ───────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-6">
+    <Bg>
+      <div className="space-y-6">
+        <LogoBrand />
 
-        {/* Brand */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-1" style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5)', boxShadow: '0 0 30px rgba(37,99,235,0.4)' }}>
-            <span className="text-2xl">🎓</span>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-1)' }}>IPMS</h1>
-            <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>Intelligent Project Monitoring System</p>
-          </div>
-        </div>
-
-        {/* Card */}
         <div className="card p-8 space-y-6">
           <div>
             <h2 className="text-lg font-semibold" style={{ color: 'var(--text-1)' }}>Sign in to your account</h2>
@@ -214,6 +224,38 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
+      </div>
+    </Bg>
+  );
+}
+
+/* ── Logo / brand header ─────────────────────────────────────────────────── */
+function LogoBrand() {
+  return (
+    <div className="text-center space-y-3">
+      <div className="relative inline-flex items-center justify-center">
+        {/* Glow ring */}
+        <div style={{
+          position: 'absolute', inset: -8, borderRadius: 32,
+          background: 'linear-gradient(135deg, rgba(37,99,235,0.4), rgba(79,70,229,0.3))',
+          filter: 'blur(10px)',
+        }} />
+        {/* Icon */}
+        <div className="relative flex items-center justify-center rounded-3xl" style={{
+          width: 80, height: 80,
+          background: 'linear-gradient(145deg, #1e40af 0%, #2563eb 45%, #4f46e5 100%)',
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.12) inset, 0 8px 32px rgba(37,99,235,0.45)',
+        }}>
+          <span style={{ fontSize: 38, lineHeight: 1, filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.35))' }}>🎓</span>
+        </div>
+      </div>
+      <div>
+        <h1 className="text-4xl font-black tracking-tight" style={{ color: 'var(--text-1)', letterSpacing: '-0.03em' }}>
+          IPMS
+        </h1>
+        <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--text-3)' }}>
+          Intelligent Project Monitoring System
+        </p>
       </div>
     </div>
   );

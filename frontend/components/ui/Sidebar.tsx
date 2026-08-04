@@ -53,7 +53,7 @@ function NavIcon({ d }: { d: string }) {
 
 export default function Sidebar() {
   const { user } = useAuth();
-  const { open, close } = useSidebar();
+  const { open, close, toggle } = useSidebar();
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState(0);
 
@@ -162,6 +162,48 @@ export default function Sidebar() {
           </div>
         </div>
       </aside>
+
+      {/* Mobile bottom navigation — hidden on md+ screens */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-30 md:hidden"
+        style={{
+          background: 'var(--nav-bg)',
+          borderTop: '1px solid var(--nav-border)',
+          backdropFilter: 'blur(20px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}
+      >
+        <div className="flex items-center justify-around px-1 py-1.5">
+          {items.slice(0, 4).map(item => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={close}
+                className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors"
+                style={{ color: active ? 'var(--sidebar-text-active)' : 'var(--sidebar-icon)', minWidth: 52 }}
+              >
+                <span style={{ color: active ? 'var(--sidebar-icon-active)' : 'var(--sidebar-icon)' }}>
+                  <NavIcon d={item.icon} />
+                </span>
+                <span style={{ fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>{item.label}</span>
+              </Link>
+            );
+          })}
+          {/* More button opens the drawer for remaining items */}
+          <button
+            onClick={toggle}
+            className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors"
+            style={{ color: open ? 'var(--sidebar-text-active)' : 'var(--sidebar-icon)', minWidth: 52 }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-[18px] h-[18px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <span style={{ fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>Menu</span>
+          </button>
+        </div>
+      </nav>
     </>
   );
 }
