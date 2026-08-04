@@ -64,38 +64,35 @@ export default function LoginPage() {
       <div aria-hidden style={{ position: 'absolute', top: '-15%', left: '-10%', width: '55%', height: '55%', background: 'radial-gradient(circle, rgba(37,99,235,0.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
       <div aria-hidden style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-      {/* Graduation cap watermark — centre */}
-      <div aria-hidden className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
-        <svg viewBox="0 0 300 260" fill="currentColor" style={{ width: 'min(75vw, 520px)', opacity: 0.032, color: 'var(--text-1)', filter: 'blur(1px)' }}>
+      {/* Logo watermark — large brand icon rising from the bottom */}
+      <div aria-hidden className="absolute pointer-events-none select-none" style={{
+        bottom: 'clamp(-140px, -18vw, -80px)',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: 'clamp(280px, 58vw, 480px)',
+        height: 'clamp(280px, 58vw, 480px)',
+        borderRadius: '28%',
+        background: 'linear-gradient(145deg, #1e40af 0%, #2563eb 50%, #4f46e5 100%)',
+        opacity: 0.08,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <svg viewBox="0 0 300 260" fill="white" style={{ width: '58%', marginBottom: '12%' }}>
           <polygon points="150,24 284,88 150,152 16,88" />
-          <path d="M68 106 Q68 158 150 168 Q232 158 232 106" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round"/>
+          <path d="M68 106 Q68 158 150 168 Q232 158 232 106" fill="none" stroke="white" strokeWidth="10" strokeLinecap="round"/>
           <ellipse cx="150" cy="168" rx="82" ry="17" />
-          <line x1="284" y1="88" x2="284" y2="158" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
+          <line x1="284" y1="88" x2="284" y2="158" stroke="white" strokeWidth="8" strokeLinecap="round"/>
           <rect x="270" y="155" width="28" height="10" rx="5" />
-          <line x1="274" y1="165" x2="268" y2="210" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
-          <line x1="280" y1="165" x2="278" y2="214" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
-          <line x1="286" y1="165" x2="288" y2="210" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
-          <line x1="292" y1="165" x2="298" y2="206" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
+          <line x1="274" y1="165" x2="268" y2="210" stroke="white" strokeWidth="5" strokeLinecap="round"/>
+          <line x1="280" y1="165" x2="278" y2="214" stroke="white" strokeWidth="5" strokeLinecap="round"/>
+          <line x1="286" y1="165" x2="288" y2="210" stroke="white" strokeWidth="5" strokeLinecap="round"/>
+          <line x1="292" y1="165" x2="298" y2="206" stroke="white" strokeWidth="5" strokeLinecap="round"/>
           <ellipse cx="267" cy="213" rx="5" ry="7" />
           <ellipse cx="278" cy="217" rx="5" ry="7" />
           <ellipse cx="289" cy="213" rx="5" ry="7" />
           <ellipse cx="299" cy="209" rx="5" ry="7" />
         </svg>
-      </div>
-
-      {/* IPMS text watermark — bottom of screen */}
-      <div aria-hidden className="absolute bottom-0 left-0 right-0 flex justify-center pointer-events-none select-none overflow-hidden" style={{ lineHeight: 0.82 }}>
-        <span style={{
-          fontSize: 'clamp(96px, 28vw, 220px)',
-          fontWeight: 900,
-          letterSpacing: '-0.04em',
-          color: 'var(--text-1)',
-          opacity: 0.04,
-          userSelect: 'none',
-          fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-        }}>
-          IPMS
-        </span>
       </div>
 
       <div className="w-full relative z-10" style={{ maxWidth: 420 }}>
