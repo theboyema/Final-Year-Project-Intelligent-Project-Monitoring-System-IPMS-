@@ -100,11 +100,13 @@ export default function AdminSettingsPage() {
           <div className="w-12 h-12 rounded-xl bg-slate-200 flex items-center justify-center text-xl font-black text-slate-700 shrink-0">
             {user?.name?.[0] ?? 'A'}
           </div>
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900">{user?.name}</h1>
-            <p className="text-sm text-slate-500">{user?.email}</p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg font-semibold text-slate-900 truncate">{user?.name}</h1>
+              <span className="badge-gray shrink-0">Administrator</span>
+            </div>
+            <p className="text-sm text-slate-500 truncate">{user?.email}</p>
           </div>
-          <span className="ml-auto badge-gray">Administrator</span>
         </div>
       </div>
 
