@@ -51,7 +51,7 @@ export default function SupervisorDashboard() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--info-text)' }}>Supervisor</p>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-1)' }}>Welcome back, {user?.name?.split(' ')[0] ?? 'Supervisor'}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-1)' }}>Welcome back, {user?.name?.split(' ')[0] ?? 'Supervisor'}</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>
             {myStudents.length} assigned student{myStudents.length !== 1 ? 's' : ''}
           </p>
@@ -69,7 +69,7 @@ export default function SupervisorDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         {[
           { label: 'Assigned Students',    value: myStudents.length,  accent: '#3b82f6', href: '/supervisor/students',
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg> },
@@ -80,21 +80,21 @@ export default function SupervisorDashboard() {
           { label: 'Unread Notifications', value: unreadNotifs,       accent: '#ef4444', href: '/supervisor/messages',
             icon: <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg> },
         ].map(s => (
-          <Link key={s.label} href={s.href} className="card p-5 flex items-center gap-4 group transition-all duration-200 hover:scale-[1.01]"
+          <Link key={s.label} href={s.href} className="card p-3 sm:p-5 flex items-center gap-3 group transition-all duration-200 hover:scale-[1.01]"
             style={{ borderTop: `2px solid ${s.accent}22` }}>
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110"
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110"
               style={{ background: `${s.accent}14`, color: s.accent }}>
               {s.icon}
             </div>
-            <div>
-              <div className="text-2xl font-bold" style={{ color: 'var(--text-1)' }}>{s.value}</div>
-              <div className="text-xs font-medium mt-0.5" style={{ color: 'var(--text-3)' }}>{s.label}</div>
+            <div className="min-w-0">
+              <div className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-1)' }}>{s.value}</div>
+              <div className="text-[10px] sm:text-xs font-medium mt-0.5 leading-tight" style={{ color: 'var(--text-3)' }}>{s.label}</div>
             </div>
           </Link>
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
         <div className="space-y-6">
 
           {/* Pending reviews */}

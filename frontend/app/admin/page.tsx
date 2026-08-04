@@ -62,7 +62,7 @@ export default function AdminDashboard() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--info-text)' }}>Overview</p>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-1)' }}>Dashboard</h1>
+          <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-1)' }}>Dashboard</h1>
           <p className="text-sm text-slate-500 mt-1">System overview — users, submissions, approvals.</p>
         </div>
         {pendingAdmins.length > 0 && (
@@ -98,25 +98,25 @@ export default function AdminDashboard() {
       )}
 
       {/* Stats */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
         {statCards.map(s => (
-          <Link key={s.label} href={s.href} className="card p-5 flex items-center gap-4 group transition-all duration-200 hover:scale-[1.01]"
+          <Link key={s.label} href={s.href} className="card p-3 sm:p-5 flex items-center gap-3 group transition-all duration-200 hover:scale-[1.01]"
             style={{ borderTop: `2px solid ${s.accent}22` }}
           >
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110"
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110"
               style={{ background: `${s.accent}14`, color: s.accent }}
             >
               {s.icon}
             </div>
-            <div>
-              <div className="text-2xl font-bold" style={{ color: 'var(--text-1)' }}>{s.value}</div>
-              <div className="text-xs text-slate-500 mt-0.5 font-medium">{s.label}</div>
+            <div className="min-w-0">
+              <div className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-1)' }}>{s.value}</div>
+              <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 font-medium leading-tight">{s.label}</div>
             </div>
           </Link>
         ))}
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
 
         {/* Quick actions */}
         <div className="card p-6">
