@@ -64,7 +64,7 @@ export default function LoginPage() {
       <div aria-hidden style={{ position: 'absolute', top: '-15%', left: '-10%', width: '55%', height: '55%', background: 'radial-gradient(circle, rgba(37,99,235,0.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
       <div aria-hidden style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-      {/* Graduation cap watermark */}
+      {/* Graduation cap watermark — centre */}
       <div aria-hidden className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
         <svg viewBox="0 0 300 260" fill="currentColor" style={{ width: 'min(75vw, 520px)', opacity: 0.032, color: 'var(--text-1)', filter: 'blur(1px)' }}>
           <polygon points="150,24 284,88 150,152 16,88" />
@@ -81,6 +81,21 @@ export default function LoginPage() {
           <ellipse cx="289" cy="213" rx="5" ry="7" />
           <ellipse cx="299" cy="209" rx="5" ry="7" />
         </svg>
+      </div>
+
+      {/* IPMS text watermark — bottom of screen */}
+      <div aria-hidden className="absolute bottom-0 left-0 right-0 flex justify-center pointer-events-none select-none overflow-hidden" style={{ lineHeight: 0.82 }}>
+        <span style={{
+          fontSize: 'clamp(96px, 28vw, 220px)',
+          fontWeight: 900,
+          letterSpacing: '-0.04em',
+          color: 'var(--text-1)',
+          opacity: 0.04,
+          userSelect: 'none',
+          fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+        }}>
+          IPMS
+        </span>
       </div>
 
       <div className="w-full relative z-10" style={{ maxWidth: 420 }}>
