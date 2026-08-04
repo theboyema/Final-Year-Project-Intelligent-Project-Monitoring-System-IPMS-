@@ -205,17 +205,17 @@ export default function LoginPage() {
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="input" placeholder="you@university.edu" autoComplete="email" />
             </div>
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="label mb-0">Password</label>
-                <button type="button" onClick={() => { setResetEmail(email.trim()); setState('forgot_pw'); }}
-                  className="text-xs font-semibold text-blue-500 hover:text-blue-400 transition">
-                  Forgot password?
-                </button>
-              </div>
+              <label className="label">Password</label>
               <div className="relative">
                 <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} className="input pr-14" placeholder="Enter your password" autoComplete="current-password" />
                 <button type="button" onClick={() => setShowPw(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-500 hover:text-slate-300 transition" tabIndex={-1}>
                   {showPw ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              <div className="mt-1.5 text-right">
+                <button type="button" onClick={() => { setResetEmail(email.trim()); setState('forgot_pw'); }}
+                  className="text-xs font-semibold text-blue-500 hover:text-blue-400 transition">
+                  Forgot password?
                 </button>
               </div>
             </div>
